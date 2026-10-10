@@ -3,9 +3,13 @@ import path from "path";
 import type { DB, Report, ReportCategory } from "./types";
 import { newShareCode } from "./utils";
 
-// DATA_DIR overrides the data location (persistent volume on the host). Falls
-// back to ./data so local dev keeps working with no configuration.
-const FILE = path.join(process.env.DATA_DIR || path.join(process.cwd(), "data"), "db.json");
+// DATA_DIR overrides the data location (persistent volume on the host). On
+// Vercel the deployment filesystem is read-only, so fall back to the writable
+// /tmp directory; otherwise use ./data so local dev needs no configuration.
+const DATA_ROOT =
+  process.env.DATA_DIR ||
+  (process.env.VERCEL ? "/tmp/palleride" : path.join(process.cwd(), "data"));
+const FILE = path.join(DATA_ROOT, "db.json");
 
 function mappedCategory(subject: string): ReportCategory {
   const s = subject.toLowerCase();
