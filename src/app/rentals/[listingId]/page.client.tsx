@@ -1,0 +1,44 @@
+"use client";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { Empty, Button } from "@/components/ui";
+import { RentalDetails } from "@/components/rentals/RentalDetails";
+import { RentalSkeleton } from "@/components/rentals/RentalSkeleton";
+import { useT, useLang } from "@/lib/i18n";
+
+export default function RentalPage() {
+  const t = useT();
+  const { te } = useLang();
+  const params = useParams<{ listingId: string }>();
+  const listingId = params?.listingId || "";
+  const [state, setState] = useState<{ data?: { listing: unknown; owner: unknown }; error?: string } | null>(null);
+
+  useEffect(() => {
+    if (!listingId) return;
+    let alive = true;
+    fetch("/api/rentals/" + listingId)
+      .then(async (r) => {
+        const data = await r.json();
+        if (!alive) return;
+        if (!r.ok) setState({ error: data.error || "Not found" });
+        else setState({ data });
+      })
+      .catch(() => alive && setState({ error: "offline" }));
+    return () => { alive = false; };
+  }, [listingId]);
+
+  if (!state) return <RentalSkeleton />;
+
+  if (state.error || !state.data)
+    return (
+      <Empty>
+        {state.error === "offline"
+          ? te ? "ఇంటర్నెట్ లేదు. కనెక్ట్ అయిన తర్వాత మళ్లీ ప్రయత్నించండి." : "No internet connection. Check and try again."
+          : te ? "లిస్టింగ్ కనబడలేదు." : "Listing not found."}
+        <div className="h-2" />
+        <Button variant="alt" onClick={() => setState(null)}>{t("Try again")}</Button>
+      </Empty>
+    );
+
+  return <RentalDetails listing={state.data.listing as never} owner={state.data.owner as never} />;
+}

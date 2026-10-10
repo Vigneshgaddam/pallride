@@ -1,26 +1,163 @@
 @import "tailwindcss";
 
+/* ── PalleRide design tokens ────────────────────────────────────────
+   Semantic tokens shared by public pages, driver dashboards, marketplace
+   and the admin panel. Components should reference these variables rather
+   than raw hex values. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #fafaf7;
+  --card: #ffffff;
+  --ink: #1f2933;
+  --mute: #4b5563;
+  --line: #e7e4dc;
+
+  /* Brand surfaces (hero card, footer) — deep forest green. */
+  --forest: #0b3d2e;
+  --forest-hover: #0e4a38;
+  --forest-ink: #e8f1ec;
+
+  /* Actions — teal-green. #238a6b chosen over #2f9e7e for white-text contrast. */
+  --primary: #238a6b;
+  --primary-hover: #1c7259;
+  --primary-soft: #ddf3ea;
+
+  /* Warm gold accent — use sparingly. */
+  --amber: #f2c066;
+  --amber-ink: #5a3e00;
+  --warning: #b45309;
+  --blue: #2563eb;
+  --danger: #dc2626;
+  --ring: #238a6b;
+
+  /* Icon chips: pale green, peach, mint. */
+  --chip-green: #e4f2e1;
+  --chip-peach: #fbebdd;
+  --chip-mint: #ddf3ea;
+
+  /* Legacy aliases kept so existing components and the admin panel resolve. */
+  --brand: var(--primary);
+  --brand-hover: var(--primary-hover);
+  --teal: var(--primary);
+  --tealbg: var(--primary-soft);
+  --sun: var(--amber);
+  --muted: var(--mute);
+  --border: var(--line);
+
+  --shadow-sm: 0 1px 2px rgba(31, 41, 51, 0.05);
+  --shadow-md: 0 4px 12px rgba(31, 41, 51, 0.08);
+  --shadow-lg: 0 16px 40px rgba(31, 41, 51, 0.14);
+  color-scheme: light;
 }
 
+/* Light mode is the default on every device. Dark mode is opt-in only,
+   applied when <html data-theme="dark"> is set explicitly — the OS
+   prefers-color-scheme is intentionally ignored. */
+:root[data-theme="dark"] {
+  --bg: #0b1220;
+  --card: #111c2e;
+  --ink: #e8eef6;
+  --mute: #94a3b8;
+  --line: #1e293b;
+  --primary-soft: #0f2a1c;
+  --amber-ink: #fef3c7;
+  color-scheme: dark;
+}
+
+/* Expose the palette as Tailwind utilities (bg-primary, text-ink, …). */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-mute: var(--mute);
+  --color-line: var(--line);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-forest: var(--forest);
+  --color-forest-hover: var(--forest-hover);
+  --color-forest-ink: var(--forest-ink);
+  --color-chip-green: var(--chip-green);
+  --color-chip-peach: var(--chip-peach);
+  --color-chip-mint: var(--chip-mint);
+  --color-amber: var(--amber);
+  --color-warning: var(--warning);
+  --color-blue: var(--blue);
+  --color-danger: var(--danger);
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Telugu",
+    "Noto Sans", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 72px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--primary);
+  color: #fff;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Hide horizontal scrollbars on chip/route rails. */
+.pr-scroll-x {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.pr-scroll-x::-webkit-scrollbar {
+  display: none;
+}
+
+/* Soft elevation used by cards and interactive tiles. */
+.pr-elevate {
+  transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+}
+.pr-elevate:hover {
+  box-shadow: var(--shadow-md);
+}
+
+@keyframes pr-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+@keyframes pr-fade {
+  from {
+    opacity: 0;
+  }
+}
+.animate-sheet-up {
+  animation: pr-up 0.2s ease-out;
+}
+.animate-fade-in {
+  animation: pr-fade 0.2s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-sheet-up,
+  .animate-fade-in {
+    animation: none;
+  }
+}
+
+@media print {
+  .pr-no-print {
+    display: none !important;
+  }
 }
